@@ -147,7 +147,8 @@ public class LiftoverVcf extends CommandLineProgram {
             final Interval source = new Interval(ctx.getContig(), ctx.getStart(), ctx.getEnd(), false, ctx.getContig() + ":" + ctx.getStart() + "-" + ctx.getEnd());
             final Interval target = liftOver.liftOver(source, 1.0);
 
-            if (target == null) {
+            // if the target is null OR (the target is reverse complemented AND the variant is an indel), then we cannot lift it over
+            if (target == null || (target.isNegativeStrand() && (ctx.isMixed() || ctx.isIndel()))) {
                 rejects.add(new VariantContextBuilder(ctx).filter(FILTER_CANNOT_LIFTOVER).make());
                 failedLiftover++;
             }
